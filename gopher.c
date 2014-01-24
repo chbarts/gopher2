@@ -1,5 +1,6 @@
 #define _POSIX_C_SOURCE 200809L /* for dprintf() */
 #define _POSIX_SOURCE
+#define _GNU_SOURCE
 #include <linux/limits.h>
 #include <sys/sendfile.h>
 #include <sys/types.h>
@@ -36,6 +37,7 @@ static void do_gopher(int fd)
     struct stat sbuf;
     ssize_t len;
     off_t offset = 0;
+    FILE *fp;
     int ifd;
 
     if ((len = read(fd, buf, PATH_MAX)) == -1) {
@@ -45,7 +47,6 @@ static void do_gopher(int fd)
         return;
     }
 
-
     if ((buf[0] == '\n') || (buf[0] == '\r') || (buf[0] == '\t')) {
         /* Received request for selector list. */
         if ((ifd = open(".selectors", O_RDONLY)) == -1) {
@@ -54,6 +55,27 @@ static void do_gopher(int fd)
             return;
         }
 
+    } else if (!strncmp(buf, "fortune", 7)) {
+        if ((fp = popen("/usr/games/fortune", "r")) == NULL) {
+            dprintf(fd,
+                    "3popen() failed: %s\tfake\terror.host\t1\r\n.\r\n",
+                    strerror(errno));
+            return;
+        }
+
+        ifd = fileno(fp);
+
+        while ((len = splice(ifd, NULL, fd, NULL, BUFSIZ, 0)) > 0);
+
+        if (len == -1) {
+            dprintf(fd,
+                    "3splice() failed: %s\tfake\terror.host\t1\r\n.\r\n",
+                    strerror(errno));
+        }
+
+        pclose(fp);
+
+        return;
     } else {
         if ((end = memchr(buf, '\r', PATH_MAX))
             || (end = memchr(buf, '\n', PATH_MAX))) {
