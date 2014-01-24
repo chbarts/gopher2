@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L /* for dprintf() */
 #define _POSIX_SOURCE
 #include <linux/limits.h>
 #include <sys/sendfile.h>
