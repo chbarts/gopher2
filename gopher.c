@@ -38,11 +38,9 @@ static void do_gopher(int fd)
     int ifd;
 
     if ((len = read(fd, buf, PATH_MAX)) == -1) {
-        len =
-            snprintf(err, PATH_MAX * 2,
-                     "3Error reading input: %s\tfake\terror.host\t1\r\n.\r\n",
-                     strerror(errno));
-        write(fd, err, len);
+        dprintf(fd,
+                "3Error reading input: %s\tfake\terror.host\t1\r\n.\r\n",
+                strerror(errno));
         return;
     }
 
@@ -50,8 +48,8 @@ static void do_gopher(int fd)
     if ((buf[0] == '\n') || (buf[0] == '\r') || (buf[0] == '\t')) {
         /* Received request for selector list. */
         if ((ifd = open(".selectors", O_RDONLY)) == -1) {
-#define ERR1 "3No .selectors file. Bug administrator to fix.\tfake\terror.host\t1\r\n.\r\n"
-            write(fd, ERR1, sizeof(ERR1) - 1);
+            dprintf(fd,
+                    "3No .selectors file. Bug administrator to fix.\tfake\terror.host\t1\r\n.\r\n");
             return;
         }
 
@@ -60,40 +58,35 @@ static void do_gopher(int fd)
             || (end = memchr(buf, '\n', PATH_MAX))) {
             *end = '\0';
         } else {
-#define ERR2 "3Malfomed request\tfake\terror.host\t1\r\n.\r\n"
-            write(fd, ERR2, sizeof(ERR2) - 1);
+            dprintf(fd, "3Malfomed request\tfake\terror.host\t1\r\n.\r\n");
             return;
         }
 
         if ((ifd = open(buf, O_RDONLY)) == -1) {
-            len =
-                snprintf(err, PATH_MAX * 2,
-                         "3'%s' does not exist (no handler found)\tfake\terror.host\t1\r\n.\r\n",
-                         buf);
-            write(fd, err, len);
+            dprintf(fd,
+                    "3'%s' does not exist (no handler found)\tfake\terror.host\t1\r\n.\r\n",
+                    buf);
             return;
         }
     }
 
     if (fstat(ifd, &sbuf) == -1) {
-#define ERR3 "3fstat failed\tfake\terror.host\t1\r\n.\r\n"
-        write(fd, ERR3, sizeof(ERR3) - 1);
+        dprintf(fd, "3fstat failed\tfake\terror.host\t1\r\n.\r\n");
         close(ifd);
         return;
     }
 
     if (!S_ISREG(sbuf.st_mode) && !S_ISFIFO(sbuf.st_mode)
         && !S_ISLNK(sbuf.st_mode)) {
-#define ERR4 "3invalid file type\tfake\terror.host\t1\r\n.\r\n"
-        write(fd, ERR4, sizeof(ERR4) - 1);
+        dprintf(fd, "3invalid file type\tfake\terror.host\t1\r\n.\r\n");
         close(ifd);
         return;
     }
 
     if ((len = sendfile(fd, ifd, &offset, sbuf.st_size)) < sbuf.st_size) {
         if (len == -1) {
-#define ERR5 "3sendfile() failed\tfake\terror.host\t1\r\n.\r\n"
-            write(fd, ERR5, sizeof(ERR5) - 1);
+            dprintf(fd,
+                    "3sendfile() failed\tfake\terror.host\t1\r\n.\r\n");
             close(ifd);
             return;
         } else {
