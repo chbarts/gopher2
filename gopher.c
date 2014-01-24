@@ -32,7 +32,7 @@ volatile int ctr;
 
 static void do_gopher(int fd)
 {
-    char buf[PATH_MAX], err[PATH_MAX * 2], *end;
+    char buf[PATH_MAX], *end;
     struct stat sbuf;
     ssize_t len;
     off_t offset = 0;
@@ -205,7 +205,6 @@ int main(int argc, char *argv[])
 {
     int cfd, port = 70, nthreads = 4;
     struct sockaddr_in sa;
-    void *ret;
 
     if (sig_handle(SIGPIPE, SIG_IGN) == -1) {
         perror("sigaction() SIGPIPE");
