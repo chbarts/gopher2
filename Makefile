@@ -7,7 +7,7 @@ CC = gcc
 
 PROJECT = gopher
 gopher:	$(OBJFILES)
-	$(CC) -o $(PROJECT) $(CFLAGS) $(OBJFILES) -lpthread
+	$(CC) -o $(PROJECT) $(OBJFILES) -lpthread
 
 clean:
 	rm $(OBJFILES) $(PROJECT)
