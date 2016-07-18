@@ -1,12 +1,12 @@
-CFLAGS = -std=c99 -g -Wall -lpthread -O3
-OBJFILES = ll.o queue.o gopher2.o
+CFLAGS = -O3 -march=native -std=c99 -g -Wall -lpthreads
+OBJFILES = ll.o queue.o gopher.o
 CC = gcc
 
 %.o:	%.c %.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-PROJECT = gopher2
-gopher2:	$(OBJFILES)
+PROJECT = gopher
+gopher:	$(OBJFILES)
 	$(CC) -o $(PROJECT) $(CFLAGS) $(OBJFILES)
 
 clean:
