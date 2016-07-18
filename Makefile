@@ -1,4 +1,4 @@
-CFLAGS = -O3 -march=native -std=c99 -g -Wall -lpthread
+CFLAGS = -O3 -march=native -std=c99 -g -Wall
 OBJFILES = ll.o queue.o gopher.o
 CC = gcc
 
@@ -7,7 +7,7 @@ CC = gcc
 
 PROJECT = gopher
 gopher:	$(OBJFILES)
-	$(CC) -o $(PROJECT) $(CFLAGS) $(OBJFILES)
+	$(CC) -o $(PROJECT) $(CFLAGS) $(OBJFILES) -lpthread
 
 clean:
 	rm $(OBJFILES) $(PROJECT)
