@@ -1,4 +1,4 @@
-CFLAGS = -O3 -march=native -std=c99 -g -Wall -lpthreads
+CFLAGS = -O3 -march=native -std=c99 -g -Wall -lpthread
 OBJFILES = ll.o queue.o gopher.o
 CC = gcc
 
